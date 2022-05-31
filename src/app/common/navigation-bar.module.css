@@ -1,0 +1,27 @@
+
+ul {
+    width: 50px;
+    margin: 0;
+    height: 750px;
+    background-color: #000080;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+
+li {
+    position: relative;
+    width: 30px;
+    left: -10px;
+    display: block;
+    background-color: white;
+    text-align: center;
+}
+
+.logoImg {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    float: left;
+    margin-left:25px;
+    margin-top:40px;  
+}
