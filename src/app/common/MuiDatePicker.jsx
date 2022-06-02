@@ -15,11 +15,11 @@ function MuiDatePicker(props){
                     props.setDate(newValue);
                 }}
                 renderInput={({ inputRef, inputProps, InputProps }) => (
-                    <Box sx={{ display: 'flex', alignItems: 'center', height: '30px', paddingTop: '37px' }}>
-                      <input ref={inputRef} {...inputProps} />
-                      {InputProps?.endAdornment}
+                    <Box sx={{ display: 'flex', alignItems: 'center', height: '30px', paddingTop: '37px'}}>
+                        <input ref={inputRef} {...inputProps} />
+                        {InputProps?.endAdornment}
                     </Box>
-                  )}
+                )}
             />
         </LocalizationProvider>
     );

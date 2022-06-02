@@ -6,8 +6,8 @@ function NavigationBar(){
     //var profileImg = "https://hub.haeahn.com/Storage/GW/ImageStorage/Employee/sj.min.jpg";
     
     return (
-        <div>
-            <img className={styles.logoImg} src={logoImg} alt="logo"/>
+        <div className={styles.wrapper}>
+            <img src={logoImg} alt="logo"/>
             <ul className={styles.tab}>
                 <li></li>
             </ul>

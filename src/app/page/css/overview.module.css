@@ -1,14 +1,5 @@
-.wrapper {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: auto;
-}
-
 .container {
     width: 100%;
-    flex: 1;
     display: flex;
     justify-content: space-between;
     column-gap: 60px;
@@ -19,8 +10,8 @@
     display: flex;
     align-items: center;
     height: 50px;
-    width: 250px;
-    padding: 25px 30px 0px 50px;
+    width: 2100px;
+    padding: 25px 50px 0px 50px;
     color: black;
     background-color: white;
     font-size: 22px;
@@ -34,14 +25,57 @@
     color: #1974d2;
     font-size: 15px;
     font-weight: 600;
-    padding: 40px 0px 0px 250px;
+    width: 1200px;
+    height: 50px;
+    padding: 40px 0px 0px 70px;
 }
 
-.profileImg {
+.profile_img {
     position: flex;
     border-radius: 40px;
     margin: 0;
     float: right;
     height: 50px;
-    margin: 23px 0px 0px 25px;
+    margin: 23px 40px 0px 0px;
+}
+
+.block_wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    overflow: hidden;
+}
+
+.sub_block_wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+}
+
+.content_wrapper{
+    max-width: 400px;
+    display: inline-block;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 2px;
+    border-color:	#F1F1F1;
+    margin: 2px;
+    text-align: center;
+    overflow-x: hidden;
+    
+}
+
+.stats_title{
+    font-size: 12px;
+    color: #918f8f;
+    padding: 0 5px 5px 5px;
+}
+
+.stats_value{
+    font-size: 17px;
+    font-weight: 600;
+    color: #001168;
+    padding: 0 5px 5px 5px;
 }
