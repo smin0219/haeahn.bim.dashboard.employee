@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     height: 50px;
-    width: 2100px;
+    width: 250px;
     padding: 25px 50px 0px 50px;
     color: black;
     background-color: white;
@@ -25,46 +25,44 @@
     color: #1974d2;
     font-size: 15px;
     font-weight: 600;
-    width: 1200px;
+    width: 130px;
     height: 50px;
-    padding: 40px 0px 0px 70px;
+    padding: 40px 20px 0px 60px;
 }
 
 .profile_img {
     position: flex;
     border-radius: 40px;
     margin: 0;
-    float: right;
+    float: left;
     height: 50px;
     margin: 23px 40px 0px 0px;
 }
 
-.block_wrapper{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    overflow: hidden;
-}
-
-.sub_block_wrapper{
-    width: 100%;
+.block_row_wrapper{
     display: flex;
     flex-direction: row;
-    overflow: auto;
+}
+
+.block_column_wrapper{
+    display: flex;
+    flex-direction: column;
 }
 
 .content_wrapper{
-    max-width: 400px;
-    display: inline-block;
     border-radius: 5px;
     border-style: solid;
     border-width: 2px;
     border-color:	#F1F1F1;
-    margin: 2px;
+    margin: 1px;
     text-align: center;
     overflow-x: hidden;
-    
+}
+
+.content_title{
+    font-weight: bold;
+    font-size: 14px;
+    color: #001168;
 }
 
 .stats_title{

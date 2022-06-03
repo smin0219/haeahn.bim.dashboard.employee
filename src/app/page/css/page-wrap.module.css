@@ -8,6 +8,7 @@ body{
     justify-content: center;
     padding: 0px;
     background-color: #faf0e6;
+    flex-direction: row;
 }
   
 .page_container {
@@ -22,4 +23,5 @@ body{
     border-radius: 16px;
     overflow: auto;
     color: black;
+    overflow: hidden;
 }
