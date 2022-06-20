@@ -1,3 +1,6 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+
 .container {
     width: 100%;
     display: flex;
@@ -11,10 +14,11 @@
     align-items: center;
     height: 50px;
     width: 250px;
-    padding: 25px 50px 0px 50px;
-    color: black;
+    padding: 30px 30px 0px 30px;
+    color: #001168;
     background-color: white;
-    font-size: 22px;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
 }
@@ -23,11 +27,11 @@
     position: flex;
     float: right;
     color: #1974d2;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
-    width: 130px;
-    height: 50px;
-    padding: 40px 20px 0px 60px;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    overflow: hidden;
+    padding: 10px 20px 0px 60px;
 }
 
 .profile_img {
@@ -36,7 +40,8 @@
     margin: 0;
     float: left;
     height: 50px;
-    margin: 23px 40px 0px 0px;
+    width: 50px;
+    margin: 15px 40px 0px 95px;
 }
 
 .block_row_wrapper{
@@ -54,26 +59,50 @@
     border-style: solid;
     border-width: 2px;
     border-color:	#F1F1F1;
-    margin: 1px;
+    margin: 2px 0 0 2px;
     text-align: center;
     overflow-x: hidden;
 }
 
 .content_title{
-    font-weight: bold;
     font-size: 14px;
     color: #001168;
+    font-weight: 600;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}
+
+.content_sub_title{
+    font-size: 8px;
+    color: #918f8f;
+    text-align: center;
+    padding: 0px 10px 0px 10px;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
 }
 
 .stats_title{
-    font-size: 12px;
+    font-size: 11px;
     color: #918f8f;
     padding: 0 5px 5px 5px;
+    text-align: center;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
 }
 
 .stats_value{
     font-size: 17px;
-    font-weight: 600;
+    font-weight: 500;
     color: #001168;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     padding: 0 5px 5px 5px;
+}
+
+.project_content_wrapper:hover{
+    background-color: #F1F1F1;
+}
+
+.project_content{
+    font-size: 13px;
+    color: black;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    text-align: center;
+    padding: 0px 10px 0px 7px;
 }

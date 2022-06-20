@@ -6,6 +6,10 @@ import { Box } from '@mui/system';
 import TextField from '@mui/material/TextField';
 import styles from './mui-date-picker.module.css';
 
+const onDateChange = (e) => {
+    console.log(e);
+}
+
 function MuiDatePicker(props){
     return(
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -15,7 +19,7 @@ function MuiDatePicker(props){
                     props.setDate(newValue);
                 }}
                 renderInput={({ inputRef, inputProps, InputProps }) => (
-                    <Box sx={{ display: 'flex', alignItems: 'center', height: '30px', paddingTop: '37px'}}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', height: '30px', paddingTop: '41px'}}>
                         <input ref={inputRef} {...inputProps} />
                         {InputProps?.endAdornment}
                     </Box>
