@@ -7,42 +7,228 @@ import MuiDatePicker  from '../common/MuiDatePicker';
 import Tooltip from '@mui/material/Tooltip';
 import Moment from 'moment';
 import Data from '../data/Data';
-import TransactionsPerDayChart from '../chart/Chart'
+import * as am4core from "@amcharts/amcharts4/core";
+import CreateXYChart, {CreatePieChart, CreatePieSeries, CreateXYSeries, CreateSeriesData} from '../chart/Chart';
+import { set } from 'date-fns';
 
 function Overview(){
+
+    const location = useLocation();
+
+    const [, updateState] = React.useState();
     const [startDate, setStartDate] = useState(Moment().subtract(1, 'month').startOf('day').format('YYYY-MM-DD'));
     const [endDate, setEndDate] = useState(Moment().subtract(1, 'day').startOf('day').format('YYYY-MM-DD'));
-    const [employeeId, setEmployeeId] = useState('sj.min');
-    const [employeeCode, setEmployeeCode] = useState('20210916');
-    const [employeeName, setEmployeeName] = useState('민성재');
+    const [employeeId, setEmployeeId] = useState(location.state.userObj.resultMail.substring(0, location.state.userObj.resultMail.indexOf('@')));
+    const [employeeCode, setEmployeeCode] = useState(location.state.userId);
+    const [employeeName, setEmployeeName] = useState(location.state.userObj.resultUserName);
     const [elements, setElements] = useState({});
     const [projects, setProjects] = useState({});
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isDateUpdated, setIsDateUpdated] = useState(true);
     const [selectedProject, setSelectedProject] = useState('');
-    const [, updateState] = React.useState();
+    const [personalTransactions, setPersonalTransactions] = useState({});
+    const [teamTransactions, setTeamTransactions] = useState({});
+    const [mostWorkedModel, setMostWorkedModel] = useState("-");
+    const [mostWorkedAnnotation, setMostWorkedAnnotation] = useState("-");
 
     const profileImg = "https://hub.haeahn.com/Storage/GW/ImageStorage/Employee/" + employeeId + ".jpg";
 
     useEffect(() => {
-        if(!isLoaded){
-            SetProjects();
-            setIsLoaded(true);
+        if(isDateUpdated){
+            setProjects({});
+            GetProjects(employeeCode, startDate, endDate).then(projects => {
+                if(projects.data.length > 0){
+                    let defaultProject = projects.data[0]
+                    setProjects(projects);
+                    setSelectedProject(defaultProject);
+                    UpdateCharts(defaultProject.project_code);
+                    setIsDateUpdated(false);
+                }
+                else{
+                    setElements({});
+                }
+            })
         }
-    });
+        else{
+            UpdateCharts(selectedProject.project_code);
+        }
+    }, [selectedProject, startDate, endDate]);
 
-    const SetProjects = () => {
-        var test1 = Moment(startDate).format('YYYY-MM-DD');
-        var test2 = Moment(endDate).format('YYYY-MM-DD');
+    const GetProjects = (employeeCode, startDate, endDate) => {
+        return Data.GetProjects(employeeCode, startDate, endDate);
+    }
 
-        Data.GetElements(employeeCode, test1, test2)
-        .then(response => {
-            setProjects(response);
-            setSelectedProject(response.data[0].project_code);
+    const GetElements = (employeeCode, projectCode, startDate, endDate) => {
+        projectCode = (projectCode === "") ? -1 : projectCode;
+        return Data.GetElements(employeeCode, projectCode, startDate, endDate);
+    }
+
+    function GroupByKey(array, key) {
+        return array
+            .reduce((hash, obj) => {
+            if(obj[key] === undefined) return hash; 
+            return Object.assign(hash, { [obj[key]]:( hash[obj[key]] || [] ).concat(obj)})
+            }, {})
+    }
+
+    function SortArrayByValueDesc(array) {
+    array.sort(function(a, b) {return b[1] - a[1];});
+    return array;
+    }
+      
+
+    const UpdateCharts = (projectCode) => {
+        GetElements(null, projectCode, startDate, endDate).then(response => {
+
+            setElements(response.data);
+            
+            //차트 생성을 위한 데이터 정리
+
+            let personalTransactions = {};
+            let teamTransactions = {};
+            let participants = {};
+            let averageTransactions = {};
+            let models = [];
+            let annotations = [];
+
+            if(response!= undefined && response.data.length > 0){
+                let elements = response.data;
+
+                for(let i=0; i<elements.length; i++){
+                    if(elements[i].employee_id === employeeCode){
+                        if(!([Moment(elements[i].occurred_on).format('YYYY-MM-DD')] in personalTransactions)){
+                            personalTransactions[Moment(elements[i].occurred_on).format('YYYY-MM-DD')] = [];
+                        }
+                        personalTransactions[Moment(elements[i].occurred_on).format('YYYY-MM-DD')].push(elements[i]);
+                    }
+                    if(!([Moment(elements[i].occurred_on).format('YYYY-MM-DD')] in teamTransactions)){
+                        teamTransactions[Moment(elements[i].occurred_on).format('YYYY-MM-DD')] = [];
+                    }
+                    teamTransactions[Moment(elements[i].occurred_on).format('YYYY-MM-DD')].push(elements[i]);
+
+                    if(!(elements[i].project_code in participants)){
+                        participants[elements[i].project_code] = [];
+                        participants[elements[i].project_code].push(elements[i].employee_id);
+                    }
+                    else{
+                        if(!(participants[elements[i].project_code].includes(elements[i].employee_id))){
+                            participants[elements[i].project_code].push(elements[i].employee_id);
+                        }
+                    }
+                    if(elements[i].category_type === 'Model'){
+                        models.push(elements[i]);
+                    }
+
+                    if(elements[i].category_type === 'Annotation'){
+                        annotations.push(elements[i]);
+                    }
+                }
+
+                for(let j=0 ; j<Object.keys(teamTransactions).length; j++){
+                    if(!(Object.keys(teamTransactions)[j] in averageTransactions)){
+                        averageTransactions[Object.keys(teamTransactions)[j]] = [];
+                    }
+                    if(selectedProject.project_code != undefined){
+                        let averageValue = teamTransactions[Object.keys(teamTransactions)[j]].length / participants[selectedProject.project_code].length;
+                        averageTransactions[Object.keys(teamTransactions)[j]].push(parseFloat(averageValue).toFixed(0));
+                    }
+                }
+
+                //XY 차트 생성
+
+                let xyChart = CreateXYChart("transaction-xy-chart");
+                
+                var personalTransactionData = CreateSeriesData(personalTransactions, false);
+                var personalTransactionSeries = CreateXYSeries(xyChart, personalTransactionData, false)
+                personalTransactionSeries.tooltipText = employeeName + ":{value}"
+
+                var averageTransactionData = CreateSeriesData(averageTransactions, true);
+                var averageTransactionSeries = CreateXYSeries(xyChart, averageTransactionData, true)
+                averageTransactionSeries.tooltipText = "팀 평균:{value}"
+
+                var teamTransactionData = CreateSeriesData(teamTransactions, false);
+                var teamTransactionSeries = CreateXYSeries(xyChart, teamTransactionData, false)
+                teamTransactionSeries.tooltipText = "팀 전체:{value}"
+
+                //Pie 차트 생성
+                let modelSliceColors = [ "#e0bbe4","#957dad","#d291bc","#fec8cd","#ffdfd3"]
+                let modelData = CreatePieChartData(models, [], "category_name");
+                let modelPie = CreatePieChart("model-pie-chart", modelData);
+                CreatePieSeries(modelPie);
+                setMostWorkedModel(modelData[0].category);
+
+                //Pie 차트 생성
+                //let anotationSliceColors = [ "#f2e30c","#c4cad6","#6950e2","#5742c1","#342ba5"]
+                //let modelSliceColors = [ "#e0bbe4","#957dad","#d291bc","#fec8cd","#ffdfd3"]
+                let anotationSliceColors = [ "#aaaaaa","#bbbbbb","#cccccc","#dddddd", "#eeeeee"]
+                let annotationData = CreatePieChartData(annotations, anotationSliceColors, "category_name");
+                let annotationPie = CreatePieChart("annotation-pie-chart", annotationData);
+                CreatePieSeries(annotationPie);
+                setMostWorkedAnnotation(annotationData[0].category);
+
+                //Pie 차트 생성
+                let viewSliceColors = [ "#fec8cd","#957dad","#d291bc","#e0bbe4","#ffdfd3"]
+                let viewData = CreatePieChartData(elements, viewSliceColors, "view_type");
+                let viewPie = CreatePieChart("view-pie-chart", viewData);
+                CreatePieSeries(viewPie);
+            }
         })
     }
 
+    const CreatePieChartData = (data, colors, key) => {
+        let groupedModel = GroupByKey(data, key);
+        var sortedModel = [];
+
+        for(var model in groupedModel){
+            sortedModel.push([model, groupedModel[model].length])
+        }
+
+        sortedModel = SortArrayByValueDesc(sortedModel);
+
+        var modelData = [];
+        
+        var sortedModelLength = 0;
+
+        if(sortedModel.length > 5){
+            sortedModelLength = 4;
+        }
+        else{
+            sortedModelLength = sortedModel.length;
+        }
+
+        for(let i=0; i<sortedModelLength; i++){
+            modelData.push({
+                "category": (sortedModel[i][0]),
+                "value": sortedModel[i][1],
+                "color": colors[i]
+            })
+        }
+
+        if(sortedModel.length > 5){
+            let otherModelValues = 0;
+
+            for(let j=4; j<sortedModel.length; j++){
+                otherModelValues += sortedModel[j][1];
+            }
+            modelData.push({
+                "category": "Others",
+                "value": otherModelValues,
+                "color": colors[4]
+            })
+        }
+
+        if(modelData.length == 0){
+            modelData.push({
+                "category": "-",
+                "value": 1,
+                "color": "#cccccc"
+            })
+        }
+
+        return modelData;
+    }
+
     const OnProjectClick = (event, props) => {
-        setSelectedProject(props.project_code);
+        setSelectedProject(props);
     }
 
     return (
@@ -52,9 +238,9 @@ function Overview(){
                 <div className={styles.block_column_wrapper}>
                     <div className={styles.block_row_wrapper} style={{height: '100px'}}>
                         <div className={styles.title_label}>Performance Overview</div>
-                        <MuiDatePicker date={startDate} setDate={setStartDate} />
+                        <MuiDatePicker date={startDate} setDate={setStartDate} setIsDateUpdated={setIsDateUpdated}/>
                         <div style={{height: '10px', paddingTop: '42px', paddingLeft: '20px', paddingRight: '20px'}}>-</div>
-                        <MuiDatePicker date={endDate} setDate={setEndDate}/>
+                        <MuiDatePicker date={endDate} setDate={setEndDate} setIsDateUpdated={setIsDateUpdated}/>
                         <div className={styles.block_column_wrapper} style={{width: '240px', paddingLeft: '70px'}}>
                             <img className={styles.profile_img} src={profileImg} alt="profile"/>
                             <div className={styles.profile_label}>환영합니다, {employeeName} 님</div>
@@ -68,17 +254,25 @@ function Overview(){
                                     <div className={styles.stats_title}>총 프로젝트 수</div>
                                 </div>
                                 <div className={styles.content_wrapper} style={{width: '90px'}}>
-                                    <div className={styles.stats_value}>4</div>
+                                    <div className={styles.stats_value}>{elements.length === undefined ? 0 : elements.length}</div>
                                     <div className={styles.stats_title}>총 객체 수</div>
                                 </div>
-                                <div className={styles.content_wrapper} style={{width: '226px'}}>
-                                    <div className={styles.stats_value}>Wall</div>
-                                    <div className={styles.stats_title}>가장 많이 작업한 모델 카테고리</div>
-                                </div>
-                                <div className={styles.content_wrapper} style={{width: '226px'}}>
-                                    <div className={styles.stats_value}>Wall</div>
-                                    <div className={styles.stats_title}>가장 많이 작업한 도면 카테고리</div>
-                                </div>
+                                <Tooltip title={mostWorkedModel}>
+                                    <div className={styles.content_wrapper} style={{width: '226px'}}>
+                                        
+                                            <div className={styles.stats_value} >{mostWorkedModel}</div>
+                                            <div className={styles.stats_title}>가장 많이 작업한 모델 카테고리</div>
+                                        
+                                    </div>
+                                </Tooltip>
+                                <Tooltip title={mostWorkedAnnotation}>
+                                    <div className={styles.content_wrapper} style={{width: '226px'}}>
+                                        
+                                            <div className={styles.stats_value}>{mostWorkedAnnotation}</div>
+                                            <div className={styles.stats_title}>가장 많이 작업한 도면 카테고리</div>
+                                        
+                                    </div>
+                                </Tooltip>
                             </div>
                             <div className={styles.block_column_wrapper} style={{width: '656px'}}>
                                 <div className={styles.content_wrapper} style={{textAlign: 'left', height: '250px'}}>
@@ -97,7 +291,7 @@ function Overview(){
                                     {projects.data != undefined ? projects.data.map((project, i) => {
                                             return (
                                                 <Tooltip key={i} title={project.project_name}>
-                                                    <div className={styles.project_content_wrapper} style={{borderRadius:'10px', borderWidth:'1px', border: selectedProject == project.project_code ? '1px solid #1974d2' : '1px solid #F1F1F1'}} onClick={(e) => OnProjectClick(e, project)}>
+                                                    <div className={styles.project_content_wrapper} style={{borderRadius:'10px', borderWidth:'1px', border: selectedProject.project_code == project.project_code ? '1px solid #1974d2' : '1px solid #F1F1F1'}} onClick={(e) => OnProjectClick(e, project)}>
                                                         <div className={styles.block_row_wrapper} style={{width: '650px'}}>
                                                             <div className={styles.project_content} style={{lineHeight: "37px", width: "80px"}}>{project.project_code}</div>
                                                             <div className={styles.project_content}  style={{lineHeight: "37px", width: "480px" }}>{project.project_name}</div>
@@ -109,15 +303,18 @@ function Overview(){
                                         }) : <div className={styles.project_content} style={{paddingTop: '80px'}} >기간 내에 참여하신 BIM 프로젝트가 존재하지 않습니다.</div>
                                     }
                                 </div>
-                                <div className={styles.content_wrapper} style={{paddingLeft: '15px', textAlign: 'left', height: '330px'}}>
+                                <div className={styles.content_wrapper} style={{paddingLeft: '15px', textAlign: 'left', height: '330px', overflow: 'hidden'}}>
                                     <h2 className={styles.content_title}>일일 작업량</h2>
-                                    <TransactionsPerDayChart/>
+                                    <div className="transaction-xy-chart" style={{top:"-10px", height:"290px"}}></div>
                                 </div>
                             </div>
                         </div>
                         <div className={styles.block_column_wrapper}>
-                            <div className={styles.content_wrapper} style={{width: '400px', paddingLeft: '15px', textAlign: 'left', height: '638px'}}>
-                                <h2 className={styles.content_title}>통계</h2>
+                            <div className={styles.content_wrapper} style={{width: '415px', textAlign: 'left', height: '638px'}}>
+                                <h2 className={styles.content_title} style={{paddingLeft: '15px'}}>통계</h2>
+                                <div className="model-pie-chart" style={{height:"197px", width:'100%', borderWidth:'1px', borderBottom: '1px solid #F1F1F1'}}></div>
+                                <div className="annotation-pie-chart" style={{height:"197px", width:'100%', borderWidth:'1px', borderBottom: '1px solid #F1F1F1'}}></div>
+                                <div className="view-pie-chart" style={{height:"197px" , width:'100%'}}></div>
                             </div>
                         </div>
                     </div>

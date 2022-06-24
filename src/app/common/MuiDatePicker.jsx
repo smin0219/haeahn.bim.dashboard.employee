@@ -3,9 +3,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Box } from '@mui/system';
-import TextField from '@mui/material/TextField';
-import styles from './mui-date-picker.module.css';
-
+import Moment from 'moment';
 const onDateChange = (e) => {
     console.log(e);
 }
@@ -16,7 +14,8 @@ function MuiDatePicker(props){
             <DatePicker
                 value={props.date}
                 onChange={(newValue) => {
-                    props.setDate(newValue);
+                    props.setDate(Moment(newValue).format('YYYY-MM-DD'));
+                    props.setIsDateUpdated(true);
                 }}
                 renderInput={({ inputRef, inputProps, InputProps }) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', height: '30px', paddingTop: '41px'}}>

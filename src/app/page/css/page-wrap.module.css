@@ -6,9 +6,8 @@ body{
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 0px;
+    padding-top: 25px;
     background-color: #faf0e6;
-    flex-direction: row;
 }
   
 .page_container {
@@ -17,7 +16,6 @@ body{
     width: 100%;
     display: flex;
     margin-top: 40px;
-    flex-direction: row;
     height: 750px;
     background-color: white;
     border-radius: 16px;
