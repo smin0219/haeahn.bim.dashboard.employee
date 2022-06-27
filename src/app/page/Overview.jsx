@@ -18,8 +18,8 @@ function Overview(){
     const [, updateState] = React.useState();
     const [startDate, setStartDate] = useState(Moment().subtract(1, 'month').startOf('day').format('YYYY-MM-DD'));
     const [endDate, setEndDate] = useState(Moment().subtract(1, 'day').startOf('day').format('YYYY-MM-DD'));
-    const [employeeId, setEmployeeId] = useState(location.state.userObj.resultMail.substring(0, location.state.userObj.resultMail.indexOf('@')));
-    const [employeeCode, setEmployeeCode] = useState(location.state.userId);
+    const [loginId, setLoginId] = useState(location.state.userObj.resultMail.substring(0, location.state.userObj.resultMail.indexOf('@')));
+    const [employeeId, setEmployeeId] = useState(location.state.userObj.resultMessage);
     const [employeeName, setEmployeeName] = useState(location.state.userObj.resultUserName);
     const [elements, setElements] = useState({});
     const [projects, setProjects] = useState({});
@@ -30,12 +30,12 @@ function Overview(){
     const [mostWorkedModel, setMostWorkedModel] = useState("-");
     const [mostWorkedAnnotation, setMostWorkedAnnotation] = useState("-");
 
-    const profileImg = "https://hub.haeahn.com/Storage/GW/ImageStorage/Employee/" + employeeId + ".jpg";
+    const profileImg = "https://hub.haeahn.com/Storage/GW/ImageStorage/Employee/" + loginId + ".jpg";
 
     useEffect(() => {
         if(isDateUpdated){
             setProjects({});
-            GetProjects(employeeCode, startDate, endDate).then(projects => {
+            GetProjects(employeeId, startDate, endDate).then(projects => {
                 if(projects.data.length > 0){
                     let defaultProject = projects.data[0]
                     setProjects(projects);
@@ -53,13 +53,13 @@ function Overview(){
         }
     }, [selectedProject, startDate, endDate]);
 
-    const GetProjects = (employeeCode, startDate, endDate) => {
-        return Data.GetProjects(employeeCode, startDate, endDate);
+    const GetProjects = (employeeId, startDate, endDate) => {
+        return Data.GetProjects(employeeId, startDate, endDate);
     }
 
-    const GetElements = (employeeCode, projectCode, startDate, endDate) => {
+    const GetElements = (employeeId, projectCode, startDate, endDate) => {
         projectCode = (projectCode === "") ? -1 : projectCode;
-        return Data.GetElements(employeeCode, projectCode, startDate, endDate);
+        return Data.GetElements(employeeId, projectCode, startDate, endDate);
     }
 
     function GroupByKey(array, key) {
@@ -94,7 +94,7 @@ function Overview(){
                 let elements = response.data;
 
                 for(let i=0; i<elements.length; i++){
-                    if(elements[i].employee_id === employeeCode){
+                    if(elements[i].employee_id === employeeId){
                         if(!([Moment(elements[i].occurred_on).format('YYYY-MM-DD')] in personalTransactions)){
                             personalTransactions[Moment(elements[i].occurred_on).format('YYYY-MM-DD')] = [];
                         }
@@ -166,7 +166,7 @@ function Overview(){
                 setMostWorkedAnnotation(annotationData[0].category);
 
                 //Pie 차트 생성
-                let viewSliceColors = [ "#fec8cd","#957dad","#d291bc","#e0bbe4","#ffdfd3"]
+                let viewSliceColors = [ "#fec8cd", "#d291bc", "#e0bbe4", "#957dad", "#ffdfd3"]
                 let viewData = CreatePieChartData(elements, viewSliceColors, "view_type");
                 let viewPie = CreatePieChart("view-pie-chart", viewData);
                 CreatePieSeries(viewPie);

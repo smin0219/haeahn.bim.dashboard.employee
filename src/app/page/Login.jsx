@@ -11,7 +11,7 @@ function Login(){
     let navigate = useNavigate();
 
     const [user, setUser] = useState();
-    const [UserID, setUserName] = useState();
+    const [UserID, setUserId] = useState();
     const [PW, setPassword] = useState();
     const [alertMsg, setAlertMsg] = useState();
 
@@ -29,7 +29,7 @@ function Login(){
             else{
                 setUser(userObj);
                 setAlertMsg('');
-                navigate('/overview', { state: {userObj: userObj, userId: UserID} });
+                navigate('/overview', { state: {userObj: userObj} });
             }
         })
       }
@@ -44,7 +44,7 @@ function Login(){
                         <form onSubmit={handleSubmit}>
                             <label>
                             <p>Username</p>
-                            <input type="text" onChange={e => setUserName(e.target.value)} />
+                            <input type="text" onChange={e => setUserId(e.target.value)} />
                             </label>
                             <label>
                             <p>Password</p>

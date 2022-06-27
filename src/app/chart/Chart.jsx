@@ -86,7 +86,7 @@ function CreatePieSeries(chart){
     /* Disable labels */
     series.labels.template.disabled = true;
     series.ticks.template.disabled = true;
-    series.colors.step = 2;
+    series.colors.step = 1;
     series.slices.template.propertyFields.fill = "color";
     series.slices.template.tooltipText = "{category} ({value})";
     series.tooltip.label.maxWidth = 300;
