@@ -9,7 +9,7 @@ import Moment from 'moment';
 import Data from '../data/Data';
 import * as am4core from "@amcharts/amcharts4/core";
 import CreateXYChart, {CreatePieChart, CreatePieSeries, CreateXYSeries, CreateSeriesData} from '../chart/Chart';
-import { set } from 'date-fns';
+import infoImg from './img/INFO_ICON.png';
 
 function Overview(){
 
@@ -45,6 +45,7 @@ function Overview(){
                 }
                 else{
                     setElements({});
+                    UpdateCharts('');
                 }
             })
         }
@@ -74,7 +75,33 @@ function Overview(){
     array.sort(function(a, b) {return b[1] - a[1];});
     return array;
     }
-      
+
+    const CreateChartTitle = (chart, series, text) => {
+        var container = new am4core.Container();
+        container.parent = series;
+        container.horizontalCenter = "middle";
+        container.verticalCenter = "middle";
+        container.width = am4core.percent(40) / Math.sqrt(2);
+        container.fill = "white";
+
+        // Add bottom label
+        let viewLabel = chart.chartContainer.createChild(am4core.Label);
+        viewLabel.parent = container;
+        viewLabel.text = text;
+        viewLabel.horizontalCenter = "middle";
+        viewLabel.fontSize = 11;
+        viewLabel.textAlign = "middle";
+    }
+
+    const GetObjectCount = (data) => {
+        let count = 0;
+
+        for(let key in data){
+            count += data[key].value;
+        }
+
+        return count;
+    }
 
     const UpdateCharts = (projectCode) => {
         GetElements(null, projectCode, startDate, endDate).then(response => {
@@ -90,7 +117,7 @@ function Overview(){
             let models = [];
             let annotations = [];
 
-            if(response!= undefined && response.data.length > 0){
+            if(response!= undefined){
                 let elements = response.data;
 
                 for(let i=0; i<elements.length; i++){
@@ -152,24 +179,32 @@ function Overview(){
                 //Pie 차트 생성
                 let modelSliceColors = [ "#e0bbe4","#957dad","#d291bc","#fec8cd","#ffdfd3"]
                 let modelData = CreatePieChartData(models, [], "category_name");
-                let modelPie = CreatePieChart("model-pie-chart", modelData);
-                CreatePieSeries(modelPie);
+                let modelPieChart = CreatePieChart("model-pie-chart", modelData);
+                let modelPieSeries = CreatePieSeries(modelPieChart);
                 setMostWorkedModel(modelData[0].category);
+                let modelCount = GetObjectCount(modelData);
+                CreateChartTitle(modelPieChart, modelPieSeries, "Models\n(" + modelCount + ")");
 
                 //Pie 차트 생성
                 //let anotationSliceColors = [ "#f2e30c","#c4cad6","#6950e2","#5742c1","#342ba5"]
                 //let modelSliceColors = [ "#e0bbe4","#957dad","#d291bc","#fec8cd","#ffdfd3"]
                 let anotationSliceColors = [ "#aaaaaa","#bbbbbb","#cccccc","#dddddd", "#eeeeee"]
                 let annotationData = CreatePieChartData(annotations, anotationSliceColors, "category_name");
-                let annotationPie = CreatePieChart("annotation-pie-chart", annotationData);
-                CreatePieSeries(annotationPie);
+                let annotationPieChart = CreatePieChart("annotation-pie-chart", annotationData);
+                let annotationSeries = CreatePieSeries(annotationPieChart);
                 setMostWorkedAnnotation(annotationData[0].category);
+                let annotationCount = GetObjectCount(annotationData);
+                CreateChartTitle(annotationPieChart, annotationSeries, "Annotations\n(" + annotationCount + ")");
+     
 
                 //Pie 차트 생성
                 let viewSliceColors = [ "#fec8cd", "#d291bc", "#e0bbe4", "#957dad", "#ffdfd3"]
                 let viewData = CreatePieChartData(elements, viewSliceColors, "view_type");
-                let viewPie = CreatePieChart("view-pie-chart", viewData);
-                CreatePieSeries(viewPie);
+                let viewPieChart = CreatePieChart("view-pie-chart", viewData);
+                let viewPieSeries = CreatePieSeries(viewPieChart);
+                let viewCount = GetObjectCount(viewData);
+                CreateChartTitle(viewPieChart, viewPieSeries, "Views\n(" + viewCount + ")");
+                
             }
         })
     }
@@ -238,6 +273,9 @@ function Overview(){
                 <div className={styles.block_column_wrapper}>
                     <div className={styles.block_row_wrapper} style={{height: '100px'}}>
                         <div className={styles.title_label}>Performance Overview</div>
+                        <Tooltip title="작일 12시 10분 이전 데이터만 표시 됩니다.">
+                            <img className={styles.info_img} src={infoImg} alt="info"/>
+                        </Tooltip>
                         <MuiDatePicker date={startDate} setDate={setStartDate} setIsDateUpdated={setIsDateUpdated}/>
                         <div style={{height: '10px', paddingTop: '42px', paddingLeft: '20px', paddingRight: '20px'}}>-</div>
                         <MuiDatePicker date={endDate} setDate={setEndDate} setIsDateUpdated={setIsDateUpdated}/>
@@ -310,11 +348,11 @@ function Overview(){
                             </div>
                         </div>
                         <div className={styles.block_column_wrapper}>
-                            <div className={styles.content_wrapper} style={{width: '415px', textAlign: 'left', height: '638px'}}>
+                            <div className={styles.content_wrapper} style={{width: '415px', textAlign: 'left', height: '640px'}}>
                                 <h2 className={styles.content_title} style={{paddingLeft: '15px'}}>통계</h2>
-                                <div className="model-pie-chart" style={{height:"197px", width:'100%', borderWidth:'1px', borderBottom: '1px solid #F1F1F1'}}></div>
-                                <div className="annotation-pie-chart" style={{height:"197px", width:'100%', borderWidth:'1px', borderBottom: '1px solid #F1F1F1'}}></div>
-                                <div className="view-pie-chart" style={{height:"197px" , width:'100%'}}></div>
+                                <div className="model-pie-chart" style={{height:"195px", width:'100%', borderWidth:'1px', borderBottom: '1px solid #F1F1F1'}}></div>
+                                <div className="annotation-pie-chart" style={{height:"195px", width:'100%', borderWidth:'1px', borderBottom: '1px solid #F1F1F1'}}></div>
+                                <div className="view-pie-chart" style={{height:"195px" , width:'100%'}}></div>
                             </div>
                         </div>
                     </div>

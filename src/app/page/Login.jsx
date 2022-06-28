@@ -32,7 +32,7 @@ function Login(){
                 navigate('/overview', { state: {userObj: userObj} });
             }
         })
-      }
+    }
 
     return (
         <main className={pageStyles.page_wrapper}>

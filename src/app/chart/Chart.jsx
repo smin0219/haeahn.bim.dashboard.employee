@@ -63,9 +63,10 @@ function CreateXYChart(div) {
 }
 
 function CreatePieChart(div, data){
-    var chart = am4core.create(div, am4charts.PieChart3D);
+    var chart = am4core.create(div, am4charts.PieChart);
     chart.hiddenState.properties.opacity = 0;
-    chart.innerRadius = am4core.percent(40);
+    chart.innerRadius = am4core.percent(55);
+
     chart.legend = new am4charts.Legend();
     chart.legend.position = "right";
     chart.legend.labels.template.truncate = true;
@@ -74,11 +75,13 @@ function CreatePieChart(div, data){
     chart.legend.fontSize = 11;
     chart.legend.fontWeight = 500;
     chart.legend.dy = -8;
+    chart.legend.itemContainers.template.togglable = false;
+
     return chart;
 }
 
 function CreatePieSeries(chart){
-    var series = chart.series.push(new am4charts.PieSeries3D());
+    var series = chart.series.push(new am4charts.PieSeries());
     series.dataFields.value = "value";
     series.dataFields.depthValue = "value";
     series.dataFields.category = "category";
