@@ -23,3 +23,15 @@ body{
     color: black;
     overflow: hidden;
 }
+
+.page_container_simple {
+    height: 600px;
+    width: 730px;
+    display: flex;
+    margin-top: 150px;
+    background-color: white;
+    border-radius: 16px;
+    overflow: auto;
+    color: black;
+    overflow: visible;
+}
